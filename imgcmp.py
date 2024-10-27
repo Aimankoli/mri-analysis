@@ -1,6 +1,7 @@
 import numpy as np
 from PIL import Image as im
 import matplotlib.pyplot as plt
+from dask.config import paths
 
 
 def svd(m: np.matrix):
@@ -50,9 +51,9 @@ def preprocess(img: str):
     image = im.open(img)
     A = np.array(image, dtype=float) / 255.0
     A = np.dot(A, [0.2989, 0.5870, 0.1140])
-    plt.imshow(A)
-    plt.axis('off')  # Turn off axis labels
-    plt.show()
+    # plt.imshow(A)
+    # plt.axis('off')  # Turn off axis labels
+    # plt.show()
     return A
 
 def compress(rank: int, image: np.array):
@@ -70,9 +71,9 @@ def compress(rank: int, image: np.array):
     vdash = v[:rank, :]
     compressed_image = np.dot(udash, np.dot(sdash, vdash))
     compressed_image = np.real(compressed_image)
-    plt.imshow(compressed_image)
-    plt.axis('off')  # Turn off axis labels
-    plt.show()
+    # plt.imshow(compressed_image)
+    # plt.axis('off')  # Turn off axis labels
+    # plt.show()
 
     return compressed_image
 
@@ -86,15 +87,36 @@ def fnorm(matrix: np.array, img: np.array):
     return norm
 
 def main():
-    A = preprocess('tj.jpg')
+    os.getcwd()
+    path = os.path.join(os.getcwd(), 'Testing', 'glioma', 'Te-gl_0071.jpg')
+    print(path)
+
+
+    A = preprocess(path)
     
-    ranks =[300]
+    ranks =[100]
     print(A)
-    fnorms=[]
     for r in ranks:
         img = compress(r, A)
-        fnorms.append(fnorm(A, img))
-    print (f"Fnorms: ", fnorms)
+
+        print(img)
+        # show image with matplotlib
+
+        plt.imshow(img, cmap='gray')
+        plt.axis('off')
+        plt.show()
+
+        # Save the image as a compressed image as 100 * 100 with no border
+        # 24 bit color depth
+        im.fromarray((img * 255).astype(np.uint8)).save("compressed_image.jpg")
+
+
+
+
+
+
+
+
 
 
 if __name__ =="__main__":
